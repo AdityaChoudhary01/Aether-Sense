@@ -107,14 +107,14 @@ function updateCurrentWeatherCard(cardElement, data, dayName = "Today") { /* No 
     `;
 }
 
-function createAirConditionsCard(currentData, forecastList) {
+function createAirConditionsCard(currentData, forecastList) { /* No changes */
     const card = document.createElement('div');
     card.id = 'air-conditions'; card.className = 'weather-card';
     updateAirConditionsCard(card, currentData, forecastList);
     return card;
 }
 
-function updateAirConditionsCard(cardElement, currentData, forecastList) {
+function updateAirConditionsCard(cardElement, currentData, forecastList) { /* No changes */
     const windSpeedKmh = (currentData.wind.speed * 3.6).toFixed(1);
     const rainChance = Math.round((forecastList[0].pop || 0) * 100);
     cardElement.innerHTML = `
@@ -128,14 +128,14 @@ function updateAirConditionsCard(cardElement, currentData, forecastList) {
     `;
 }
 
-function createHourlyForecastCard(hourlyData) {
+function createHourlyForecastCard(hourlyData) { /* No changes */
     const card = document.createElement('div');
     card.id = 'hourly-forecast'; card.className = 'weather-card';
     updateHourlyForecastCard(card, hourlyData);
     return card;
 }
 
-function updateHourlyForecastCard(cardElement, hourlyData, title = "TODAY'S FORECAST") {
+function updateHourlyForecastCard(cardElement, hourlyData, title = "TODAY'S FORECAST") { /* No changes */
     let hourlyItemsHTML = hourlyData.map(item => {
         const hour = new Date(item.dt * 1000).getHours().toString().padStart(2, '0');
         const rainChance = Math.round((item.pop || 0) * 100);
@@ -168,7 +168,11 @@ function createDailyForecastCard(forecastList) {
         const dayName = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' });
         const icon = Object.keys(dayData.icons).reduce((a, b) => dayData.icons[a] > dayData.icons[b] ? a : b);
         const desc = Object.keys(dayData.descs).reduce((a, b) => dayData.descs[a] > dayData.descs[b] ? a : b);
-        const maxPop = Math.round(Math.max(...dayData.pops) * 100);
+        
+        // **UPDATED LOGIC: Calculate average pop instead of max**
+        const totalPop = dayData.pops.reduce((sum, current) => sum + current, 0);
+        const avgPop = Math.round((totalPop / dayData.pops.length) * 100);
+
         return `
             <div class="daily-item" data-date="${dateStr}">
                 <p class="day">${dayName}</p>
@@ -177,7 +181,7 @@ function createDailyForecastCard(forecastList) {
                 </div>
                 <div class="temps">
                     <strong>${Math.round(Math.max(...dayData.temps))}°</strong> / ${Math.round(Math.min(...dayData.temps))}°
-                    <p class="rain-chance"><i class="fa-solid fa-droplet"></i> ${maxPop}%</p>
+                    <p class="rain-chance"><i class="fa-solid fa-droplet"></i> ${avgPop}%</p>
                 </div>
             </div>`;
     }).join('');
@@ -194,7 +198,7 @@ function createDailyForecastCard(forecastList) {
 // =================================================================================
 //  INTERACTIVITY & HELPERS
 // =================================================================================
-function handleDayClick(dateStr) {
+function handleDayClick(dateStr) { /* No changes */
     document.querySelectorAll('.daily-item').forEach(item => item.classList.remove('active'));
     document.querySelector(`.daily-item[data-date="${dateStr}"]`).classList.add('active');
 
@@ -211,7 +215,7 @@ function handleDayClick(dateStr) {
 
 function getUserLocation() { /* No changes */
     const showRandomCity = () => {
-        const randomCities = ['Delhi', 'Dehradun', 'Noida', 'Meerut', 'Shamli', 'Muzaffarnagar'];
+        const randomCities = ['Tokyo', 'New York', 'Paris', 'London', 'Sydney', 'Dubai'];
         fetchWeather(randomCities[Math.floor(Math.random() * randomCities.length)]);
     };
     if (navigator.geolocation) {
