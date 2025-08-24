@@ -215,7 +215,7 @@ function handleDayClick(dateStr) { /* No changes */
 
 function getUserLocation() { /* No changes */
     const showRandomCity = () => {
-        const randomCities = ['Tokyo', 'New York', 'Paris', 'London', 'Sydney', 'Dubai'];
+        const randomCities = ['Delhi', 'Noida', 'Meerut', 'Shamli', 'Dehradun', 'Muzaffarnagar'];
         fetchWeather(randomCities[Math.floor(Math.random() * randomCities.length)]);
     };
     if (navigator.geolocation) {
