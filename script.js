@@ -18,17 +18,11 @@ let fullForecastData = []; // To store the full 5-day forecast
 // =================================================================================
 //  EVENT LISTENERS
 // =================================================================================
-
-// Search functionality
 searchBtn.addEventListener('click', () => fetchWeather(cityInput.value));
 cityInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') fetchWeather(cityInput.value);
 });
-
-// Theme toggle
 themeToggleBtn.addEventListener('click', toggleTheme);
-
-// Load theme and user location on page start
 window.addEventListener('load', () => {
     applySavedTheme();
     getUserLocation();
@@ -37,7 +31,6 @@ window.addEventListener('load', () => {
 // =================================================================================
 //  THEME MANAGEMENT
 // =================================================================================
-
 function applySavedTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
     if (savedTheme === 'light') {
@@ -54,14 +47,12 @@ function toggleTheme() {
 // =================================================================================
 //  WEATHER DATA FETCHING
 // =================================================================================
-
 function fetchWeather(city) {
     if (!city) {
         displayError("Please enter a city name.");
         return;
     }
     displayLoader();
-
     const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
 
@@ -84,26 +75,24 @@ function fetchWeather(city) {
 // =================================================================================
 //  UI DISPLAY & CARD CREATION
 // =================================================================================
-
 function displayInitialWeather(current, forecast) {
-    weatherGrid.innerHTML = ''; // Clear loader or previous content
+    weatherGrid.innerHTML = '';
     weatherGrid.appendChild(createCurrentWeatherCard(current));
-    weatherGrid.appendChild(createAirConditionsCard(current));
+    weatherGrid.appendChild(createAirConditionsCard(current, forecast.list));
     weatherGrid.appendChild(createHourlyForecastCard(forecast.list.slice(0, 8)));
     weatherGrid.appendChild(createDailyForecastCard(forecast.list));
-    document.querySelector('.daily-item')?.classList.add('active'); // Highlight today
+    document.querySelector('.daily-item')?.classList.add('active');
 }
 
 // --- Functions to CREATE and UPDATE cards ---
-
-function createCurrentWeatherCard(data) {
+function createCurrentWeatherCard(data) { /* No changes */
     const card = document.createElement('div');
     card.id = 'current-weather'; card.className = 'weather-card';
     updateCurrentWeatherCard(card, data);
     return card;
 }
 
-function updateCurrentWeatherCard(cardElement, data, dayName = "Today") {
+function updateCurrentWeatherCard(cardElement, data, dayName = "Today") { /* No changes */
     const cityName = data.name ? `${data.name}, ${data.sys.country}` : document.querySelector('.current-details h2').textContent;
     cardElement.innerHTML = `
         <div class="current-details">
@@ -118,22 +107,23 @@ function updateCurrentWeatherCard(cardElement, data, dayName = "Today") {
     `;
 }
 
-function createAirConditionsCard(data) {
+function createAirConditionsCard(currentData, forecastList) {
     const card = document.createElement('div');
     card.id = 'air-conditions'; card.className = 'weather-card';
-    updateAirConditionsCard(card, data);
+    updateAirConditionsCard(card, currentData, forecastList);
     return card;
 }
 
-function updateAirConditionsCard(cardElement, data) {
-    const windSpeedKmh = (data.wind.speed * 3.6).toFixed(1);
+function updateAirConditionsCard(cardElement, currentData, forecastList) {
+    const windSpeedKmh = (currentData.wind.speed * 3.6).toFixed(1);
+    const rainChance = Math.round((forecastList[0].pop || 0) * 100);
     cardElement.innerHTML = `
         <h3>AIR CONDITIONS</h3>
         <div class="conditions-grid">
+            <div class="condition-item"><i class="fa-solid fa-cloud-showers-heavy"></i><div><p class="label">Chance of Rain</p><p class="value">${rainChance}%</p></div></div>
             <div class="condition-item"><i class="fa-solid fa-wind"></i><div><p class="label">Wind Speed</p><p class="value">${windSpeedKmh} km/h</p></div></div>
-            <div class="condition-item"><i class="fa-solid fa-droplet"></i><div><p class="label">Humidity</p><p class="value">${data.main.humidity}%</p></div></div>
-            <div class="condition-item"><i class="fa-solid fa-cloud"></i><div><p class="label">Cloudiness</p><p class="value">${data.clouds.all}%</p></div></div>
-            <div class="condition-item"><i class="fa-solid fa-eye"></i><div><p class="label">Visibility</p><p class="value">${(data.visibility / 1000).toFixed(1)} km</p></div></div>
+            <div class="condition-item"><i class="fa-solid fa-droplet"></i><div><p class="label">Humidity</p><p class="value">${currentData.main.humidity}%</p></div></div>
+            <div class="condition-item"><i class="fa-solid fa-eye"></i><div><p class="label">Visibility</p><p class="value">${(currentData.visibility / 1000).toFixed(1)} km</p></div></div>
         </div>
     `;
 }
@@ -148,11 +138,13 @@ function createHourlyForecastCard(hourlyData) {
 function updateHourlyForecastCard(cardElement, hourlyData, title = "TODAY'S FORECAST") {
     let hourlyItemsHTML = hourlyData.map(item => {
         const hour = new Date(item.dt * 1000).getHours().toString().padStart(2, '0');
+        const rainChance = Math.round((item.pop || 0) * 100);
         return `
             <div class="hourly-item">
                 <p class="time">${hour}:00</p>
                 <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png" alt="${item.weather[0].description}">
                 <p class="temp">${Math.round(item.main.temp)}°C</p>
+                <p class="rain-chance"><i class="fa-solid fa-droplet" style="font-size: 0.8em;"></i> ${rainChance}%</p>
             </div>`;
     }).join('');
     cardElement.innerHTML = `<h3>${title}</h3><div class="hourly-container">${hourlyItemsHTML}</div>`;
@@ -164,8 +156,9 @@ function createDailyForecastCard(forecastList) {
     const dailyData = {};
     forecastList.forEach(item => {
         const date = new Date(item.dt * 1000).toLocaleDateString('en-CA');
-        if (!dailyData[date]) dailyData[date] = { temps: [], icons: {}, descs: {} };
+        if (!dailyData[date]) dailyData[date] = { temps: [], icons: {}, descs: {}, pops: [] };
         dailyData[date].temps.push(item.main.temp);
+        dailyData[date].pops.push(item.pop || 0);
         dailyData[date].icons[item.weather[0].icon] = (dailyData[date].icons[item.weather[0].icon] || 0) + 1;
         dailyData[date].descs[item.weather[0].description] = (dailyData[date].descs[item.weather[0].description] || 0) + 1;
     });
@@ -175,18 +168,22 @@ function createDailyForecastCard(forecastList) {
         const dayName = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' });
         const icon = Object.keys(dayData.icons).reduce((a, b) => dayData.icons[a] > dayData.icons[b] ? a : b);
         const desc = Object.keys(dayData.descs).reduce((a, b) => dayData.descs[a] > dayData.descs[b] ? a : b);
+        const maxPop = Math.round(Math.max(...dayData.pops) * 100);
         return `
             <div class="daily-item" data-date="${dateStr}">
                 <p class="day">${dayName}</p>
                 <div class="icon-desc">
                     <img src="https://openweathermap.org/img/wn/${icon}.png" alt="${desc}"><p class="desc">${desc}</p>
                 </div>
-                <p class="temps"><strong>${Math.round(Math.max(...dayData.temps))}°</strong> / ${Math.round(Math.min(...dayData.temps))}°</p>
+                <div class="temps">
+                    <strong>${Math.round(Math.max(...dayData.temps))}°</strong> / ${Math.round(Math.min(...dayData.temps))}°
+                    <p class="rain-chance"><i class="fa-solid fa-droplet"></i> ${maxPop}%</p>
+                </div>
             </div>`;
     }).join('');
     card.innerHTML = `<h3>5-DAY FORECAST</h3><div class="daily-container">${dailyItemsHTML}</div>`;
 
-    setTimeout(() => { // Add listeners after elements are in the DOM
+    setTimeout(() => {
         document.querySelectorAll('.daily-item').forEach(item => {
             item.addEventListener('click', () => handleDayClick(item.dataset.date));
         });
@@ -194,11 +191,9 @@ function createDailyForecastCard(forecastList) {
     return card;
 }
 
-
 // =================================================================================
 //  INTERACTIVITY & HELPERS
 // =================================================================================
-
 function handleDayClick(dateStr) {
     document.querySelectorAll('.daily-item').forEach(item => item.classList.remove('active'));
     document.querySelector(`.daily-item[data-date="${dateStr}"]`).classList.add('active');
@@ -209,17 +204,16 @@ function handleDayClick(dateStr) {
         const dayName = dateStr === new Date().toLocaleDateString('en-CA') ? 'Today' : new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
         
         updateCurrentWeatherCard(document.getElementById('current-weather'), representativeData, dayName);
-        updateAirConditionsCard(document.getElementById('air-conditions'), representativeData);
+        updateAirConditionsCard(document.getElementById('air-conditions'), representativeData, dayData);
         updateHourlyForecastCard(document.getElementById('hourly-forecast'), dayData, `${dayName.toUpperCase()}'S FORECAST`);
     }
 }
 
-function getUserLocation() {
+function getUserLocation() { /* No changes */
     const showRandomCity = () => {
-        const randomCities = ['Tokyo', 'New York', 'Paris', 'London', 'Sydney', 'Dubai'];
+        const randomCities = ['Delhi', 'Dehradun', 'Noida', 'Meerut', 'Shamli', 'Muzaffarnagar'];
         fetchWeather(randomCities[Math.floor(Math.random() * randomCities.length)]);
     };
-
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
             const { latitude, longitude } = position.coords;
