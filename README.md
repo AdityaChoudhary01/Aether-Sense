@@ -2,7 +2,7 @@
 
 Aether Sense is a sleek, modern, and feature-rich weather application that delivers real-time weather data through a beautifully animated and intuitive interface. Whether you're planning your day or your week, Aether Sense has you covered with interactive forecasts and detailed air conditions.
 
-🔗 **Live Demo**: [Aether Sense](https://adityachoudhary01.github.io/WeatherApp/)
+🔗 **Live Demo**: [Aether Sense](https://aethersense.netlify.app/)
 
 ---
 
