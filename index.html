@@ -1,19 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Weather App</title>
-  <link rel="stylesheet" type="text/css" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Weather App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Weather App</h1>
-    <div class="search-bar">
-      <input type="text" id="city" placeholder="Enter city name">
-      <button id="search-btn">Search</button>
-    </div>
-    <div id="weather-info">
-      <!-- Weather details will be displayed here -->
-    </div>
+  <div class="app-container">
+    <header class="search-container">
+      <input type="text" id="city-input" placeholder="Search for cities...">
+      <button id="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+    </header>
+
+    <main class="weather-grid" id="weather-grid">
+      <div class="placeholder">
+          <h2>Search for a city or allow location access to see the weather.</h2>
+      </div>
+    </main>
   </div>
   <script src="script.js"></script>
 </body>
